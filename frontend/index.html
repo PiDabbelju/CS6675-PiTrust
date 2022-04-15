@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>PiTrust Frontend Prototype</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script src="./backend.js"></script>
+</head>
+
+<body>
+    <div>
+        <h1>PiTrust Frontend Prototype</h1>
+
+        <h2>Rate entity</h2>
+        Address: <input id="ratingAddress" type="text"><br />
+        Topic: <input id="ratingTopic" type="text"><br />
+        Rating: <input type="range" min="1" max="10" value="5" class="slider" id="rating"> <span id="ratingValue">5</span><br />
+        <button id="rateButton">Rate him/her/it</button>
+        <span id="ratingOutput"></span>
+
+        <h2>Query ratings & token balance</h2>
+        Address: <input id="queryAddress" type="text">
+        <button id="queryButton">Query address</button>
+        <span id="queryOutput"></span>
+
+        <h2>Get list of top 10 experts</h2>
+        Topic: <input id="topic" type="text">
+        <button id="listButton">Find experts</button>
+        <span id="listOutput"></span>
+
+        <h2>Add 1000 token to address</h2>
+        Address: <input id="addAddress" type="text">
+        <button id="addButton">Add funds</button>
+        <span id="fundingOutput"></span>
+
+        <h2>Approve token usage for smart contract</h2>
+        <button id="approveButton">Approve</button>
+        <span id="approveOutput"></span>        
+
+    </div>
+
+    <script src="./frontend.js"></script>
+</body>
+
+</html>

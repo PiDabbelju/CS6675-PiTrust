@@ -1,0 +1,10 @@
+_code
+**/node_modules
+SmartContract/build
+artifacts
+Report/*.drawio
+Report/*.docx
+Report/*.xlsx
+~*
+tobedeleted
+1000_Foundation
