@@ -1,6 +1,4 @@
 /* ** VARIABLES ** */
-// Ganache GUI local
-var url = 'http://127.0.0.1:7545'  
 var contractAbi = [
     {
         "inputs": [
@@ -444,11 +442,14 @@ var contractAbi = [
         "type": "function"
     }
 ]
+
+// Ganache local
+var url = 'http://127.0.0.1:7545'  
 var contractAddress = "0x31A37E7032D82CB33086144dAD991DAd0480994a"
 
-// Alchemy
-//var url = "https://eth-mainnet.alchemyapi.io/v2/cWvKZZ0xiadjMZfOHfHwd9A_Zvm_b2_3";
-//var address = "0x00000000219ab540356cBB839Cbe05303d7705Fa"  // ETH2 staking contract
+// Deployment on Polygon Mumbai Testnet (via Alchemy)
+var url = 'https://polygon-mumbai.g.alchemy.com/v2/pCYAWJeXr0UoBRbne7EwBZL3pgrL5Ulw'
+var contractAddress = "0xD5D02341C1163957a3a5f85c84cE27a7ee12C3F4"
 
 /* ** ** */
 /* INITIALIZATION */
@@ -465,16 +466,34 @@ var contract = new web3.eth.Contract(contractAbi, contractAddress)
 // Set a default account
 window.ethereum.request({ method: 'eth_requestAccounts' })
 // Needs to be synchronous
+var isLocal = true
+var accounts
 this.web3.eth.getAccounts().then(accounts => {
     this.currentUser = accounts[0]
-    web3.eth.Contract.defaultAccount = accounts[0]
    })
+// Check if account is available. If not, likely working on real blockchain (via Metamask)
+if (!accounts) {
+    openMetamask()
+}
 
 /* ** ** */
 /* ** FUNCTIONS ** */
 async function sendRating(targetAddress, topic, rating) {
-    await contract.methods.rate(targetAddress, topic, rating).send({from: web3.eth.Contract.defaultAccount, gas: 300000})
-    var result = getRating(targetAddress, topic)
+    if (isLocal) {  // Local blockchain
+        await contract.methods.rate(targetAddress, topic, rating).send({from: accounts[0], gas: 300000})
+        var result = getRating(targetAddress, topic)
+    } else {  // Interface via Metamask
+        const transactionParameters = {
+            from: accounts[0],
+            to: contractAddress,
+            data: contract.methods.rate(targetAddress, topic, rating).encodeABI()   
+        };
+        // popup - request the user to sign and broadcast the transaction
+        await ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
+        });        
+    }
     console.log("Rating sent to smart contract")
     return result
 }
@@ -515,18 +534,51 @@ async function listExperts(topic) {
 }
 
 async function addFunds(targetAddress) {
-    await contract.methods.addFunds(targetAddress).send({from: web3.eth.Contract.defaultAccount})
-    console.log("Funds added to " + targetAddress)
+    if (isLocal) {  // Local blockchain
+        await contract.methods.addFunds(targetAddress).send({from: accounts[0]})
+    } else {  // Interface via Metamask
+        const transactionParameters = {
+            from: accounts[0],
+            to: contractAddress,
+            data: contract.methods.addFunds(targetAddress).encodeABI()   
+        };
+        // popup - request the user to sign and broadcast the transaction
+        await ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
+        });        
+    }
+        console.log("Funds added to " + targetAddress)
 }
 
 async function approve() {
-    await contract.methods.approve(contractAddress, 1000).send({from: web3.eth.Contract.defaultAccount})
-    var approved = await contract.methods.allowance(web3.eth.Contract.defaultAccount, contractAddress).call()
-    console.log(web3.eth.Contract.defaultAccount + " approved usage of " + approved + " Tokens")
+    if (isLocal) {  // Local blockchain
+        await contract.methods.approve(contractAddress, 1000).send({from: accounts[0]})
+        var approved = await contract.methods.allowance(accounts[0], contractAddress).call()
+    } else {  // Interface via Metamask
+        const transactionParameters = {
+            from: accounts[0],
+            to: contractAddress,
+            data: contract.methods.approve(contractAddress, 1000).encodeABI()   
+        };
+        // popup - request the user to sign and broadcast the transaction
+        await ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
+        });        
+    }
+    console.log(accounts[0] + " approved usage of " + approved + " Tokens")
 }
 
 async function getRating(targetAddress, topic) {
     var result = await contract.methods.getRating(targetAddress, topic).call()
-    console.log("Returned rating in topic " + topic + " for address " + web3.eth.Contract.defaultAccount)
+    console.log("Returned rating in topic " + topic + " for address " + accounts[0])
     return result / 10000
+}
+
+// * Added for Real-world deployment (testnet) -> Request account from Metamask
+async function openMetamask() {
+    accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+    console.log(accounts[0])
+    isLocal = false;
 }

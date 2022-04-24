@@ -38,7 +38,7 @@ contract PiTrust is ERC20 {
     }
     
     // Constructor: Initializes values including reference to PiTrust token
-    constructor(uint256 initialSupply) ERC20("PiTrust", "PIT") {
+    constructor(uint256 initialSupply) ERC20("PiTrust", "PT") {
         owner = tx.origin;  // Safe the owner address
         inflationTimestamp = block.timestamp + 31536000;  // One year from now
         fundingWallet = payable(owner);
@@ -99,9 +99,9 @@ contract PiTrust is ERC20 {
         // Refined implementation
         uint256 ratersRating = max(ratingMultiplier, entities[msg.sender]._currentRatings[field]);  // Get the rater's expertise, 0 if not existent
         // Use SafeMath library
-        uint256 newRating = ((currentRating.mul(currentCount))
-           .add(rating.mul(ratersRating)))
-               .div((currentCount.add(ratersRating.div(ratingMultiplier))));
+        uint256 newRating = (((currentRating.mul(currentCount))
+           .add(rating.mul(ratersRating))).mul(ratingMultiplier))
+               .div((currentCount.mul(ratingMultiplier)).add(ratersRating));
 
         // Increment rating count for respective field
         entities[targetAddress]._countRatings[field] += 1;
