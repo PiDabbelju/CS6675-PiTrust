@@ -70,7 +70,7 @@ contract PiTrust is ERC20 {
     }
 
     // Core function: Rate an entity
-    function rate(address targetAddress, string memory field, uint256 rating) public payable returns(uint256) {
+    function rate(address targetAddress, string memory topic, uint256 rating) public payable returns(uint256) {
         // First: Check if rater has enough PiTrust tokens
         require(this.balanceOf(msg.sender) >= 10);
 
@@ -82,39 +82,39 @@ contract PiTrust is ERC20 {
         this.transferOnRating(targetAddress, rating);
 
         // Add topic to entities-array and entity to topics-array, if not already existing
-        if (entities[targetAddress]._currentRatings[field] == 0) {
-            entities[targetAddress]._topics.push(field);
-            topics[field]._entities.push(targetAddress);
+        if (entities[targetAddress]._currentRatings[topic] == 0) {
+            entities[targetAddress]._topics.push(topic);
+            topics[topic]._entities.push(targetAddress);
         }
 
         // Save current rating
-        entities[targetAddress]._lastRatings[field] = Rating(msg.sender, rating);
+        entities[targetAddress]._lastRatings[topic] = Rating(msg.sender, rating);
 
         // Calculate new rating according to formula
-        uint256 currentRating = entities[targetAddress]._currentRatings[field];
-        uint256 currentCount = entities[targetAddress]._countRatings[field];
+        uint256 currentRating = entities[targetAddress]._currentRatings[topic];
+        uint256 currentCount = entities[targetAddress]._countRatings[topic];
         // First implementation:
         // uint256 newRating = (currentRating * currentCount + rating) / (currentCount + 1);
 
         // Refined implementation
-        uint256 ratersRating = max(ratingMultiplier, entities[msg.sender]._currentRatings[field]);  // Get the rater's expertise, 0 if not existent
+        uint256 ratersRating = max(ratingMultiplier, entities[msg.sender]._currentRatings[topic]);  // Get the rater's expertise, 0 if not existent
         // Use SafeMath library
         uint256 newRating = (((currentRating.mul(currentCount))
            .add(rating.mul(ratersRating))).mul(ratingMultiplier))
                .div((currentCount.mul(ratingMultiplier)).add(ratersRating));
 
-        // Increment rating count for respective field
-        entities[targetAddress]._countRatings[field] += 1;
+        // Increment rating count for respective topic
+        entities[targetAddress]._countRatings[topic] += 1;
 
         // Write new rating to target entity
-        entities[targetAddress]._currentRatings[field] = newRating;
+        entities[targetAddress]._currentRatings[topic] = newRating;
 
         return newRating;
     }
 
-    // get rating of an entity in a particular field (has to be divided by ratingMultiplier for the actual rating )
-    function getRating(address targetAddress, string memory field) public view returns(uint256) {
-        return entities[targetAddress]._currentRatings[field]; // / ratingMultiplier;
+    // get rating of an entity in a particular topic (has to be divided by ratingMultiplier for the actual rating )
+    function getRating(address targetAddress, string memory topic) public view returns(uint256) {
+        return entities[targetAddress]._currentRatings[topic]; // / ratingMultiplier;
     }
 
     // add 1000 tokens to a wallet

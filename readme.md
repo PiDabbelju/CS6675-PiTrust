@@ -1,0 +1,15 @@
+Folder structure:
+- Report: Contains the actual project report and all related files
+- SmartContract: Contains the PiTrust smart contract to be deployed on the blockchain
+    - contracts/PiTrust.sol: The actual contract
+    - contracts/Migrations.sol: Auxilliary (predefined) contract for Truffle framework
+    - migrations/1_initial_migration.js: Information/script for the deployment (also predefined)
+    - test/token.test.js: All functional testing (performed on local Ganache blockchain), including storing of test results in CSVs, which have been used for graphs in the report
+    - PiTrustCheckin*.sol: Intermediate implementations at the time of checkins (only for documentation)
+    - *.csv: Files containing intermediate results (gas fees, ratings & balances) during testing
+    - truffle-config.js: Configuration file for deployment targets (blockchains)
+- frontend: Static files used for frontend prototype
+    - backend.js: All funcitonality needed to communicate with the smart contract
+    - frontend.js: All JavaScript functionality to be used in the frontend (e.g. actions when buttons are clicked)
+    - index.html: Static HTML file for the frontend
+    - main.css: Unused CSS

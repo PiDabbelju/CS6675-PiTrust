@@ -10,3 +10,5 @@ tobedeleted
 1000_Foundation
 secret.txt
 *.png
+package-lock.json
+package.json
